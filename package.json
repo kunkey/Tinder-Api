@@ -1,0 +1,16 @@
+{
+    "name": "tinder-auto-like",
+    "version": "1.0.0",
+    "description": "tinder auto like",
+    "main": "app.js",
+    "scripts": {
+        "start": "node app.js",
+        "dev": "nodemon app.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "kunkey",
+    "license": "ISC",
+    "dependencies": {
+        "axios": "^0.27.2"
+    }
+}
