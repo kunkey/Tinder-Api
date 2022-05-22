@@ -8,3 +8,5 @@ module.exports = {
     "user-session-time-elapsed": "", // user session time 
     "x-auth-token": "" // jwt token
 };
+
+// tutorial at https://www.facebook.com/kunkey.github/videos/296704759340273

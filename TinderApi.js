@@ -46,10 +46,12 @@ let getUser = async() => {
 
                     const execLiker = await like(data.user._id, data.s_number);
 
-                    if (execLiker) {
-                        console.log(`Like Success: ${data.user.name}`);
-                    } else {
-                        console.log(`Like Fail: ${data.user.name}`);
+                    if (data.user !== undefined) {
+                        if (execLiker) {
+                            console.log(`Like Success: ${data.user.name}`);
+                        } else {
+                            console.log(`Like Fail: ${data.user.name}`);
+                        }
                     }
 
                     if (runLike == endLike) {
@@ -264,7 +266,7 @@ const getMatch = async(limit) => {
                 let endLike = Object.keys(getData.data.matches).length;
 
                 for (data of getData.data.matches) {
-                    if (data.seen.match_seen) {
+                    if (!data.seen.match_seen) {
                         await seenMatch(data.id);
                         await sendMsg(data.id, data.person._id, data.person.name, config["message"]);
                     }
@@ -285,4 +287,10 @@ const getMatch = async(limit) => {
         getMatch(100);
         return false;
     }
+}
+
+
+module.exports = {
+    getUser,
+    getMatch
 }
