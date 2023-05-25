@@ -1,9 +1,10 @@
 const axios = require('axios'); // use v1.12
-const config = require('./configV2');
 const helper = require('./helper');
 
-let loginWithAuthToken = async (accessToken) => {
+let loginWithAuthToken = async () => {
     try {
+        const auth = helper.getConfig('auth');
+
         let login = await axios({
             method: 'post',
             url: 'https://api.gotinder.com/v3/auth/login?locale=vi',
@@ -15,7 +16,7 @@ let loginWithAuthToken = async (accessToken) => {
                 'content-type': 'application/x-google-protobuf',
                 'is-created-as-guest': 'false',
                 'origin': 'https://tinder.com',
-                'persistent-device-id': 'bf6cc320-06d2-408f-a9ea-40beb7dbd5e7',
+                'persistent-device-id': '70ee2b6f-5248-446c-8c55-cca35c11f90d',
                 'platform': 'web',
                 'referer': 'https://tinder.com/',
                 'sec-ch-ua': '"Not?A_Brand";v="8", "Chromium";v="108", "Google Chrome";v="108"',
@@ -28,25 +29,46 @@ let loginWithAuthToken = async (accessToken) => {
                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
                 'x-supported-image-formats': 'webp,jpeg'
             },
-            data: `R_\n]${accessToken}`
+            data: `R_\n]${auth.login_token}`
         });
         login = login.data;
         const removeBefore = login.split("]");
-        const removeAfter = removeBefore[1].split(`"`);
+        const removeAfter = removeBefore[1].split(`*\x05`);
         const token = removeAfter[0].split(`\x12$`);
-        helper.saveContentData('refreshToken.log', token[0], 'w');
+        const ParseData = removeAfter[0].split('\x12$');
+        const data = ParseData[1].split('"\x18');
+
+        helper.setConfig('auth', {
+            "login_token" : token[0],
+            "message": auth.message, // message when matched
+            "meID": data[1], // your uid
+            "app-session-id": auth["app-session-id"], // app session
+            "app-session-time-elapsed": auth["app-session-time-elapsed"], // app session time
+            "persistent-device-id": auth["persistent-device-id"], // persistent
+            "user-session-id": auth["user-session-id"], // user session id
+            "user-session-time-elapsed": auth["user-session-time-elapsed"], // user session time 
+            "x-auth-token": data[0], // auth token key
+            "locale": "vi"
+        });
+        
         return {
             'refreshToken': token[0],
-            'tokenApi': token[1]
+            'tokenApi': data[0],
+            'uid': data[1]
         }
     } catch (e) {
-        console.log(e);
-        return null;
+        //console.log(e);
+        return {
+            'refreshToken': null,
+            'tokenApi': null,
+            'uid': null
+        };
     }
 }
 
 let updateLocation = async (lat, long) => {
     try {
+        const config = helper.getConfig('auth');
         let update = await axios({
             method: 'post',
             url: 'https://api.gotinder.com/v2/meta?locale=vi',
@@ -87,6 +109,7 @@ let updateLocation = async (lat, long) => {
 
 let getMyProfile = async () => {
     try {
+        const config = helper.getConfig('auth');
         let profile = await axios({
             method: 'get',
             url: `https://api.gotinder.com/v2/profile?locale=${config["locale"]}&include=account%2Cavailable_descriptors%2Cboost%2Cbouncerbypass%2Ccontact_cards%2Cemail_settings%2Cfeature_access%2Cinstagram%2Clikes%2Cprofile_meter%2Cnotifications%2Cmisc_merchandising%2Cofferings%2Conboarding%2Cplus_control%2Cpurchase%2Creadreceipts%2Cspotify%2Csuper_likes%2Ctinder_u%2Ctravel%2Ctutorials%2Cuser`,
@@ -120,6 +143,8 @@ let getMyProfile = async () => {
 
 let getRandomUser = async () => {
     try {
+        const config = helper.getConfig('auth');
+
         let getData = await axios({
             method: 'get',
             url: `https://api.gotinder.com/v2/recs/core?locale=${config["locale"]}`,
@@ -146,13 +171,14 @@ let getRandomUser = async () => {
         getData = getData.data;
         return getData;
     } catch (e) {
-        return null;
         console.log(e);
+        return null;
     }
 }
 
 let likeUser = async (userID, sNumber) => {
     try {
+        const config = helper.getConfig('auth');
         let likeData = await axios({
             method: 'post',
             url: `https://api.gotinder.com/like/${userID}?locale=${config["locale"]}`,
@@ -192,6 +218,7 @@ let likeUser = async (userID, sNumber) => {
 
 const seenMatch = async (userID) => { // 5e807181e0739401001f589f5ef3b4718a1f1e0100aa96a9
     try {
+        const config = helper.getConfig('auth');
         let seenData = await axios({
             method: 'post',
             url: `https://api.gotinder.com/v2/seen/${userID}?locale=${config["locale"]}`,
@@ -227,6 +254,7 @@ const seenMatch = async (userID) => { // 5e807181e0739401001f589f5ef3b4718a1f1e0
 
 const sendMessage = async (matchId, shortID, name, message) => {
     try {
+        const config = helper.getConfig('auth');
         let sendData = await axios({
             method: 'post',
             url: `https://api.gotinder.com/user/matches/${matchId}?locale=${config["locale"]}`,
@@ -269,6 +297,7 @@ const sendMessage = async (matchId, shortID, name, message) => {
 
 const getMatched = async (limit) => {
     try {
+        const config = helper.getConfig('auth');
         let getData = await axios({
             method: 'get',
             url: `https://api.gotinder.com/v2/matches?locale=vi&count=${limit}&message=0&is_tinder_u=false`,
@@ -293,4 +322,15 @@ const getMatched = async (limit) => {
         console.log(e);
         return null;
     }
+}
+
+module.exports = {
+    loginWithAuthToken,
+    updateLocation,
+    getMyProfile,
+    getRandomUser,
+    likeUser,
+    seenMatch,
+    sendMessage,
+    getMatched
 }

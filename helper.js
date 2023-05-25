@@ -45,10 +45,29 @@ let saveJsonUserData = function (content) {
     }
 }
 
+let getConfig = function (config) {
+    let text = fs.readFileSync(process.cwd() + '/config/' + config + '.json', 'utf8');
+    try {
+        text = JSON.parse(text);
+        return text;
+    } catch (e) {
+        return null;
+    }
+}
+
+let setConfig = function (config, data) {
+    fs.writeFile(process.cwd() + '/config/' + config + '.json', JSON.stringify(data), function (err) { 
+        console.log(err);
+    });
+    data = null;
+}
+
 
 module.exports = {
     saveContentData,
     saveUserData,
     getDataContent,
-    saveJsonUserData
+    saveJsonUserData,
+    getConfig,
+    setConfig
 }
