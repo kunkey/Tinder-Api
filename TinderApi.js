@@ -1,7 +1,8 @@
 const axios = require('axios');
 const config = require('./config');
+const helper = require('./helper');
 
-let getUser = async() => {
+let getUser = async () => {
     try {
         let getData = await axios({
             method: 'get',
@@ -49,6 +50,7 @@ let getUser = async() => {
                     if (data.user !== undefined) {
                         if (execLiker) {
                             console.log(`Like Success: ${data.user.name}`);
+                            helper.saveUserData(`${data.user._id}|${data.s_number}|${data.user.name}`);
                         } else {
                             console.log(`Like Fail: ${data.user.name}`);
                         }
@@ -72,7 +74,7 @@ let getUser = async() => {
     }
 }
 
-let like = async(userID, sNumber) => {
+let like = async (userID, sNumber) => {
     try {
         var data = JSON.stringify({
             "s_number": sNumber,
@@ -125,7 +127,7 @@ let like = async(userID, sNumber) => {
     }
 }
 
-const seenMatch = async(userID) => { // 5e807181e0739401001f589f5ef3b4718a1f1e0100aa96a9
+const seenMatch = async (userID) => { // 5e807181e0739401001f589f5ef3b4718a1f1e0100aa96a9
     try {
         var data = JSON.stringify({});
 
@@ -174,7 +176,7 @@ const seenMatch = async(userID) => { // 5e807181e0739401001f589f5ef3b4718a1f1e01
     }
 }
 
-const sendMsg = async(matchId, shortID, name, message) => {
+const sendMsg = async (matchId, shortID, name, message) => {
     try {
         var data = JSON.stringify({
             "userId": config["meID"],
@@ -230,7 +232,7 @@ const sendMsg = async(matchId, shortID, name, message) => {
     }
 }
 
-const getMatch = async(limit) => {
+const getMatch = async (limit) => {
     try {
         let getData = await axios({
             method: 'get',

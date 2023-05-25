@@ -11,7 +11,8 @@
     "author": "kunkey",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.27.2",
+        "axios": "^1.1.2",
+        "dotenv": "^16.0.3",
         "nodemon": "^2.0.16"
     }
 }
