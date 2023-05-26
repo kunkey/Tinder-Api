@@ -56,9 +56,7 @@ let getConfig = function (config) {
 }
 
 let setConfig = function (config, data) {
-    fs.writeFile(process.cwd() + '/config/' + config + '.json', JSON.stringify(data), function (err) { 
-        console.log(err);
-    });
+    fs.writeFile(process.cwd() + '/config/' + config + '.json', JSON.stringify(data), function (err) {     });
     data = null;
 }
 

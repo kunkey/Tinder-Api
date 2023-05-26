@@ -53,45 +53,50 @@ const run = async () => {
 const matchedAction = async (limit) => {
     try {
 
-        const config = helper.getConfig('auth');
-        const getData = await tinderApi.getMatched(100);
+        // login first
+        await tinderApi.loginWithAuthToken();
 
-        if (getData.meta.status == 200) {
+        setTimeout(async () => {
+            const config = helper.getConfig('auth');
+            const getData = await tinderApi.getMatched(100);
 
-            if (getData.data.hasOwnProperty("matches")) {
+            if (getData.meta.status == 200) {
 
-                if (getData.data.matches) {
+                if (getData.data.hasOwnProperty("matches")) {
 
-                    for (data of getData.data.matches) {
+                    if (getData.data.matches) {
 
-                        // chưa seen mactch
-                        if (!data.seen.match_seen) {
-                            if (void 0 !== data.person) {
-                                if (void 0 !== data.person._id) {
-                                    await tinderApi.seenMatch(data.id);
-                                    await tinderApi.sendMessage(data.id, data.person._id, data.person.name, config["message"]);
-                                    console.log("Send Messsage to: " + data.person.name);
+                        for (data of getData.data.matches) {
+
+                            // chưa seen mactch
+                            if (!data.seen.match_seen) {
+                                if (void 0 !== data.person) {
+                                    if (void 0 !== data.person._id) {
+                                        await tinderApi.seenMatch(data.id);
+                                        await tinderApi.sendMessage(data.id, data.person._id, data.person.name, config["message"]);
+                                        console.log("Send Messsage to: " + data.person.name);
+                                    }
                                 }
-                            }
-                        } else {
-                            if (void 0 !== data.person) {
-                                if (void 0 !== data.person._id) {
-                                    await tinderApi.seenMatch(data.id);
-                                    await tinderApi.sendMessage(data.id, data.person._id, data.person.name, config["message"]);
-                                    console.log("Send Messsage to: " + data.person.name);
+                            } else {
+                                if (void 0 !== data.person) {
+                                    if (void 0 !== data.person._id) {
+                                        await tinderApi.seenMatch(data.id);
+                                        await tinderApi.sendMessage(data.id, data.person._id, data.person.name, config["message"]);
+                                        console.log("Send Messsage to: " + data.person.name);
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    matchedAction(100);
-                } else {
-                    matchedAction(100);
+                        matchedAction(100);
+                    } else {
+                        matchedAction(100);
+                    }
                 }
+            } else {
+                matchedAction(100);
             }
-        } else {
-            matchedAction(100);
-        }
+        }, 2000)
     } catch (err) {
         matchedAction(100);
     }
